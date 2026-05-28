@@ -13,6 +13,7 @@ class ImageResponse(BaseModel):
     vision_description: Optional[str] = None
     suggested_words: Optional[List[dict]] = None
     processed: bool
+    error_message: Optional[str] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

@@ -121,6 +121,29 @@ export default function VisionGardenPage() {
         </div>
       )}
 
+      {result && !result.processed && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-xl p-6">
+          <div className="flex items-start gap-3">
+            <div className="text-red-500 text-2xl shrink-0">&#x26A0;</div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg text-red-700 mb-1">{t('garden.processingFailed')}</h3>
+              <p className="text-red-600 text-sm mb-3">{t('garden.processingFailedDesc')}</p>
+              {result.error_message && (
+                <p className="text-red-500 text-xs bg-red-100 rounded-lg p-3 font-mono break-all">
+                  {t('garden.errorDetail', { message: result.error_message })}
+                </p>
+              )}
+              <button
+                onClick={() => setResult(null)}
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+              >
+                {t('garden.retry')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showGallery && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowGallery(false)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>

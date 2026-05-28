@@ -9,7 +9,13 @@ from app.config import settings
 
 class VisionService:
     def __init__(self):
-        self.client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        if not settings.anthropic_api_key:
+            raise RuntimeError("ANTHROPIC_API_KEY is not configured")
+        kwargs = {"api_key": settings.anthropic_api_key}
+        if settings.anthropic_base_url:
+            kwargs["base_url"] = settings.anthropic_base_url
+        self.client = anthropic.Anthropic(**kwargs)
+        self.model = settings.anthropic_model or "claude-sonnet-4-20250514"
 
     def process_image(self, image_path: str, user_language: str = "en") -> dict:
         with open(image_path, "rb") as f:
@@ -19,16 +25,25 @@ class VisionService:
         if mime_type not in ("image/jpeg", "image/png", "image/webp", "image/gif"):
             mime_type = "image/jpeg"
 
-        prompt = (
-            "Describe this image in 2-3 sentences. "
-            "Then extract 5-10 useful vocabulary words visible or strongly associated with this image. "
-            "For each word, provide: the English word, Chinese translation, and a brief definition. "
-            "Return ONLY valid JSON in this format: "
-            '{"description": "...", "words": [{"word": "...", "translation": "...", "definition": "..."}]}'
-        )
+        if user_language == "zh":
+            prompt = (
+                "请用2-3句中文描述这张图片。"
+                "然后提取5-10个与图片相关的实用英语词汇。"
+                "对于每个词汇，提供：英文单词、中文翻译和简短的英文定义。"
+                "只返回有效的JSON，格式如下："
+                '{"description": "...", "words": [{"word": "...", "translation": "...", "definition": "..."}]}'
+            )
+        else:
+            prompt = (
+                "Describe this image in 2-3 sentences. "
+                "Then extract 5-10 useful vocabulary words visible or strongly associated with this image. "
+                "For each word, provide: the English word, Chinese translation, and a brief definition. "
+                "Return ONLY valid JSON in this format: "
+                '{"description": "...", "words": [{"word": "...", "translation": "...", "definition": "..."}]}'
+            )
 
         message = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=self.model,
             max_tokens=1500,
             messages=[{
                 "role": "user",
@@ -49,12 +64,17 @@ class VisionService:
             }]
         )
 
-        response_text = message.content[0].text
-        # Try to extract JSON from the response
+        response_text = None
+        for block in message.content:
+            if block.type == "text" and block.text:
+                response_text = block.text
+                break
+        if not response_text:
+            raise RuntimeError("Vision API returned no text content")
+
         try:
             result = json.loads(response_text)
         except json.JSONDecodeError:
-            # Try to find JSON in the response
             start = response_text.find("{")
             end = response_text.rfind("}") + 1
             if start != -1 and end > start:
@@ -62,7 +82,11 @@ class VisionService:
             else:
                 result = {"description": response_text, "words": []}
 
+        if "words" not in result and "vocabulary" in result:
+            result["words"] = [
+                {"word": w, "translation": "", "definition": ""}
+                if isinstance(w, str) else w
+                for w in result["vocabulary"]
+            ]
+
         return result
-
-
-vision_service = VisionService()

@@ -99,7 +99,11 @@
     "addSelected": "添加选中词汇",
     "addedWords": "已添加 {{count}} 个词汇！",
     "gallery": "图片库",
-    "noImages": "还没有上传图片"
+    "noImages": "还没有上传图片",
+    "processingFailed": "图片处理失败",
+    "processingFailedDesc": "视觉服务无法处理您的图片，请检查服务配置后重试。",
+    "errorDetail": "错误信息：{{message}}",
+    "retry": "重新上传"
   },
   "progress": {
     "title": "学习进度",

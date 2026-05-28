@@ -21,6 +21,7 @@ class Image(Base):
     vision_description: Mapped[str | None] = mapped_column(Text)
     suggested_words: Mapped[dict | None] = mapped_column(JSONB)
     processed: Mapped[bool] = mapped_column(Boolean, default=False)
+    error_message: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="images")

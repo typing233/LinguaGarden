@@ -99,7 +99,11 @@
     "addSelected": "Add Selected to Vocabulary",
     "addedWords": "{{count}} words added to vocabulary!",
     "gallery": "Image Gallery",
-    "noImages": "No images uploaded yet"
+    "noImages": "No images uploaded yet",
+    "processingFailed": "Image processing failed",
+    "processingFailedDesc": "The vision service could not process your image. Please check the service configuration and try again.",
+    "errorDetail": "Error: {{message}}",
+    "retry": "Try Another Image"
   },
   "progress": {
     "title": "Learning Progress",

@@ -122,5 +122,6 @@ export interface ImageResult {
   vision_description: string | null;
   suggested_words: { word: string; translation: string; definition: string }[] | null;
   processed: boolean;
+  error_message: string | null;
   created_at: string;
 }

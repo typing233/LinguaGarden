@@ -10,7 +10,7 @@ from app.models.user import User
 from app.models.image import Image
 from app.models.vocabulary import Vocabulary
 from app.schemas.image import ImageResponse, ImageAddWords
-from app.services.vision_service import vision_service
+from app.services.vision_service import VisionService
 from app.utils.storage import save_upload_file
 
 router = APIRouter(prefix="/api/vision", tags=["vision"])
@@ -44,13 +44,23 @@ def upload_image(
     db.add(image)
     db.flush()
 
-    try:
-        result = vision_service.process_image(file_path, current_user.preferred_language)
-        image.vision_description = result.get("description", "")
-        image.suggested_words = result.get("words", [])
-        image.processed = True
-    except Exception:
+    if not settings.anthropic_api_key:
         image.processed = False
+        image.error_message = "Vision service is not configured: missing API key. Please set ANTHROPIC_API_KEY."
+    else:
+        try:
+            vision_service = VisionService()
+            result = vision_service.process_image(file_path, current_user.preferred_language)
+            image.vision_description = result.get("description", "")
+            image.suggested_words = result.get("words", [])
+            if not image.vision_description:
+                image.processed = False
+                image.error_message = "Vision service returned an empty description."
+            else:
+                image.processed = True
+        except Exception as e:
+            image.processed = False
+            image.error_message = f"Vision service failed: {str(e)}"
 
     db.commit()
     db.refresh(image)
