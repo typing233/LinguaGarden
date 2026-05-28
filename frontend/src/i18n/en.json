@@ -50,7 +50,14 @@
     "wordLists": "Word Lists",
     "createList": "Create List",
     "listName": "List Name",
-    "listDesc": "Description"
+    "listDesc": "Description",
+    "manageTags": "Manage",
+    "manageLists": "Manage",
+    "tagName": "Tag name",
+    "noTags": "No tags yet",
+    "noLists": "No word lists yet",
+    "addToList": "Add to List",
+    "wordsCount": "words"
   },
   "exercise": {
     "title": "Exercises",
@@ -78,7 +85,9 @@
     "tryAgain": "Try Again",
     "backToExercises": "Back to Exercises",
     "matchPairs": "Match the pairs",
-    "hint": "Hint: {{hint}}"
+    "hint": "Hint: {{hint}}",
+    "promptLabel": "Translate this:",
+    "matchCorrect": "{{correct}} / {{total}} pairs correct"
   },
   "garden": {
     "title": "Vision Garden",

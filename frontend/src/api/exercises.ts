@@ -9,7 +9,7 @@ export const exerciseApi = {
     return client.get<Exercise>(`/exercises/${id}`);
   },
   answer(exerciseId: string, data: { question_id: string; answer: string }) {
-    return client.post<{ is_correct: boolean; correct_answer: string | number }>(`/exercises/${exerciseId}/answer`, data);
+    return client.post<{ is_correct: boolean; correct_answer?: string | number; correct_count?: number; total?: number }>(`/exercises/${exerciseId}/answer`, data);
   },
   complete(id: string, data?: { duration_seconds?: number }) {
     return client.post<Exercise>(`/exercises/${id}/complete`, data || {});

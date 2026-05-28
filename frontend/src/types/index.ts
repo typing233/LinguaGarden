@@ -76,6 +76,10 @@ export interface ExerciseQuestion {
     left_cards?: string[];
     right_cards?: string[];
     correct_pairs?: Record<string, number>;
+    my_left_index?: number;
+    my_correct_right_index?: number;
+    prompt_language?: string;
+    answer_language?: string;
   };
   user_answer: string | null;
   is_correct: boolean | null;

@@ -50,7 +50,14 @@
     "wordLists": "词汇表",
     "createList": "创建词汇表",
     "listName": "名称",
-    "listDesc": "描述"
+    "listDesc": "描述",
+    "manageTags": "管理",
+    "manageLists": "管理",
+    "tagName": "标签名称",
+    "noTags": "暂无标签",
+    "noLists": "暂无词汇表",
+    "addToList": "加入词汇表",
+    "wordsCount": "个单词"
   },
   "exercise": {
     "title": "练习",
@@ -78,7 +85,9 @@
     "tryAgain": "再试一次",
     "backToExercises": "返回练习",
     "matchPairs": "配对单词",
-    "hint": "提示：{{hint}}"
+    "hint": "提示：{{hint}}",
+    "promptLabel": "翻译：",
+    "matchCorrect": "{{correct}} / {{total}} 对正确"
   },
   "garden": {
     "title": "视觉花园",

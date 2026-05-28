@@ -11,7 +11,7 @@ from app.schemas.exercise import (
     ExerciseGenerate, ExerciseResponse, ExerciseAnswer,
     ExerciseComplete, ExerciseHistoryResponse,
 )
-from app.services.exercise_service import generate_exercise, check_answer, complete_exercise
+from app.services.exercise_service import generate_exercise, check_answer, check_card_matching_batch, complete_exercise
 
 router = APIRouter(prefix="/api/exercises", tags=["exercises"])
 
@@ -21,7 +21,11 @@ def generate(data: ExerciseGenerate, db: Session = Depends(get_db), current_user
     if data.exercise_type not in ("spelling", "multiple_choice", "card_matching"):
         raise HTTPException(status_code=400, detail={"code": "error.exercise.invalid_type", "message": "Invalid exercise type"})
     try:
-        exercise = generate_exercise(db, current_user.id, data.exercise_type, data.word_list_id, data.count)
+        exercise = generate_exercise(
+            db, current_user.id, data.exercise_type,
+            data.word_list_id, data.count,
+            preferred_language=current_user.preferred_language,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail={"code": "error.exercise.not_enough_words", "message": str(e)})
     return ExerciseResponse.model_validate(exercise)
@@ -43,6 +47,11 @@ def answer_question(exercise_id: uuid.UUID, data: ExerciseAnswer, db: Session = 
     if exercise.completed:
         raise HTTPException(status_code=400, detail={"code": "error.exercise.already_completed", "message": "Exercise already completed"})
 
+    # Card matching: answer all questions in batch
+    if exercise.exercise_type == "card_matching":
+        result = check_card_matching_batch(db, exercise, data.answer)
+        return {"is_correct": result["correct_count"] == result["total"], "correct_count": result["correct_count"], "total": result["total"]}
+
     question = db.query(ExerciseQuestion).filter(
         ExerciseQuestion.id == data.question_id,
         ExerciseQuestion.exercise_id == exercise_id,
@@ -50,8 +59,8 @@ def answer_question(exercise_id: uuid.UUID, data: ExerciseAnswer, db: Session = 
     if not question:
         raise HTTPException(status_code=404, detail={"code": "error.exercise.question_not_found", "message": "Question not found"})
 
-    is_correct = check_answer(db, question, data.answer)
-    return {"is_correct": is_correct, "correct_answer": question.question_data.get("correct_answer") or question.question_data.get("correct_index")}
+    result = check_answer(db, question, data.answer)
+    return result
 
 
 @router.post("/{exercise_id}/complete", response_model=ExerciseResponse)
